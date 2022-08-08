@@ -1,0 +1,11 @@
+To remove all items stowed do the following
+
+Go to where the dotfiles are stored and run the stow command with -D
+
+if the tow command run to setup the linked files was
+    stow config
+
+the to remove the stowed files run this command
+    stow -D config
+
+
