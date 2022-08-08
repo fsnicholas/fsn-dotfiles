@@ -1,0 +1,315 @@
+# -*- sh -*-
+
+# .zshrc-personal for Debian
+# F.S. Nicholas
+# lets call this V1 as a start
+# date-created 2021 Sept 25
+# using as base V3Qb  - aug-20-26 more changes use of editor to edit zshrc etc, keyserver, fix aliases
+#
+# https://wiki.archlinux.org/index.php/Zsh (used this for many commands)
+#  Amended June-30-2022 (Arch Linux)
+# V3Qe - sorted removed duplicates 
+# V3Qf - changed mirrora
+# V3Qg - removed alias for duf (now runs duf-bin)
+# V4a -  removed all pyene, apache ph-fpm aliases
+# V4b -  arranged aliases in groups (Arch Linux)
+
+# Using su
+alias su='sudo -i'
+
+# userlist
+alias userlist="cut -d: -f1 /etc/passwd | sort"
+alias grouplist='bat /etc/group | grep $USER | sort'
+
+# merge new settings
+alias merge="xrdb -merge ~/.Xresources"
+
+## System stuff
+# error messages from journalctl for today
+alias jctl="journalctl -rxb"
+alias jctl2="journalctl -rb"
+alias jctl3="journalctl -p 3 -xb"
+
+alias sysfailed="systemctl list-units --failed"
+
+#maintenance for Arch Linux
+alias big="expac -H M '%m\t%n' | sort -h | nl"
+alias bighome='du -hs */ | sort -hr | head -15 | nl'
+
+# systeminfo
+alias probe="sudo -E hw-probe -all -upload"
+
+# hardware info --short
+alias hw="hwinfo --short"
+
+# improve png
+alias fixpng='find . -type f -name "*.png" -exec convert {} -strip {} \;'
+
+# add new fonts
+alias update-fc='sudo fc-cache -fv'
+
+# APPLICATIONS
+#alias bashupdate='. ~/.bashrc'
+alias scp='scp -c blowfish -r'
+alias make='make -j4'
+alias wget='wget -c'   ## resume wget by default
+
+# FILE OPERATIONS
+alias fdisk='sudo fdisk -l'
+alias uuid='sudo vol_id -u'
+alias rfind='sudo find / -name'
+alias rrsync='sudo rsync --verbose -rtvogp --progress --force --delete'
+alias usdb='sudo umount /dev/sdb*'
+
+## using colour for dir & grep
+# enable color support of ls and also add handy aliases
+if [ -x /usr/bin/dircolors ]; then
+    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+    alias dir='dir --color=auto'
+    alias vdir='vdir --color=auto'
+    alias diff='diff --color=auto'
+
+    alias grep='grep --color=auto'
+    alias fgrep='grep -f --color=auto'
+    alias egrep='grep -A 2 -B 2 --color=auto'
+    alias sgrep='grep -R -n -H -C 5 --exclude-dir={.git,.svn,CVS} '
+fi
+
+# ls aliases & exa
+#alias ls 'exa'
+alias lls='exa --group-directories-first --icons'
+alias xls 'exa -a --icons --color=always --group-directories-first'
+alias xll 'exa -lag --icons --color=always --group-directories-first --octal-permissions'
+alias ll='exa -bghl --git --color=automatic'
+alias l='ls -Fa'
+# alias ll='ls -F'
+alias lr='ls -alhR'  # recursive
+alias la="ls -abhl --git"
+
+TREE_IGNORE="cache|log|logs|node_modules|vendor"
+alias lt='ls --tree -D --level=2 -I ${TREE_IGNORE}'
+alias ltl='ls --tree -D --level=2 -I ${TREE_IGNORE} | bat'
+alias t3='tree -dlx -L 3'
+
+alias '?=man'
+alias cat='bat'
+alias cls='clear'
+alias h='history'
+alias less='less -R'
+alias now='date +"%T"'
+alias nowtime=now
+alias nowdate='date +"%d-%m-%Y"'
+alias path='echo -e ${PATH//:/\\n}'
+
+# directory
+alias home='cd ~'
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
+alias .....='cd ../../../..'
+alias ......='cd ../../../../..'
+
+alias cdd='cd ~/Downloads/
+alias cdo='cd ~/Documents/
+
+# Git CLI aliases
+alias g='git'
+alias gi='git init'
+alias gra='git remote add'
+alias gs='git status'
+alias gpom='git push origin master'
+
+# remove git cache
+alias rmgitcache="rm -r ~/.cache/git"
+
+# do not delete / (root system) or prompt if deleting more than 3 files at a time
+alias rd='sudo rm -I -R --preserve-root'
+alias rm='rm -I --preserve-root'
+
+# confirmation #
+alias mvi='mv -i --verbose'
+alias cpi='cp -i --verbose'
+alias ln='ln -i'
+
+## no error if exists, make parent directories as needed
+alias mkdir='mkdir -pv'
+alias md='mkdir -pv'
+
+# Parenting changing perms on / #
+alias chown='chown --preserve-root'
+alias chmod='chmod --preserve-root'
+alias chgrp='chgrp --preserve-root'
+
+# fix permissions for user directories
+alias fix-permissions="sudo chown -R $USER:$USER ~/.config ~/.local"
+
+alias meminfo='free -l'
+alias free='free -hmt'
+
+alias dfh='df -hPT'
+alias dfa='df -x tmpfs -x devtmpfs -h'
+
+alias duh='du -d -h 1'
+# alias duf='du -sh *' # duf is duf-bin app
+
+# directory size. Usage: dirsize directoryname
+# alias dirsize='du -hx --max-depth=1'
+alias dirsize='du -schx ./*'
+
+# SEARCHING
+# search content with ripgrep
+alias rg="rg --sort path"
+alias rga="rga -i"
+alias rga-c2="rga -C 2"
+
+alias ffind='find / -name' #find a file. Usage: ffind 'filename'
+(( $+commands[fd] )) || alias fd='find . -type d -name'
+alias ff='find . -type f -name'
+
+# locate ignore case
+alias locate='locate -i'
+
+# ps
+alias psa='ps auxf'
+alias p='ps -f'
+# alias psgrep="ps aux | grep "
+alias psgrep="ps aux | grep -v grep | grep -i -e VSZ -e"
+pspt (){ ps aux | pt -v pt |  pt 'VSZ|'$1'';} # pt platinum search
+
+# Show ip address
+alias ips="ip a | perl -nle'/(\d+\.\d+\.\d+\.\d+)/ && print $1'"
+alias ipa="ip a | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1'"
+
+## PACMAN stuff Arch Linux
+# Update and Upgrade Packages
+alias update='sudo pacman -Syyu'
+
+# Install and Remove Packages
+alias pacinn='sudo pacman -S --needed'  # install if not already
+alias pacin='sudo pacman -S'  # install or reinstall
+alias pacre='sudo pacman -R '  ## remove package but keep settings & dependencies
+alias pacrm='sudo pacman -Rnsc'  ## -Rc rm package, settings & unneeded dependencies
+
+alias cleanup='sudo pacman -Rns $(pacman -Qtdq)'  #Cleanup orphaned packages
+
+alias pacq="pacman -Qe | awk '{print \$1}' "   # print package list
+
+# Search repository
+alias pacshow='sudo pacman -Ss' ## there is a pacsearch utility in Arch
+alias pacls='sudo pacman -Q'        ## List installed local packages along with version
+alias paclsall='sudo pacman -Qi'    ## Display local package full information
+alias paclsrem='sudo pacman -Si' ## Display remote package full information
+
+#Recent Installed Packages
+alias rip="expac --timefmt='%Y-%m-%d %T' '%l\t%n %v' | sort | tail -100"
+alias riplong="expac --timefmt='%Y-%m-%d %T' '%l\t%n %v' | sort | tail -3000 | nl"
+
+# Using yay
+# yay as aur helper - updates everything
+alias pacupd='update && yay -Syu'
+alias upall="yay -Syu"
+alias yayin='yay -S'  # paru implies paru -S install or reinstall packages from repos or AUR
+alias yayre='yay -R '  ## remove package but keep settings & dependencies
+alias yayrm='yay -Rns'  ## rm package, settings & unneeded dependencies
+alias yayshow='yay -Ss' # search for packages in repos & AUR
+
+# Using paru
+# paru as aur helper - updates everything
+alias pacupdp='update && paru -Syu'
+alias pksyua="paru -Syu --noconfirm"
+alias upallp="paru -Syu --noconfirm"
+#alias parin='paru -S'  # paru implies paru -S install or reinstall packages from repos or AUR
+alias parre='paru -R '  ## remove package but keep settings & dependencies
+alias parrm='paru -Rns'  ## rm package, settings & unneeded dependencies
+alias parshow='paru -Ss' # search for packages in repos & AUR
+alias paruskip='paru -S --mflags --skipinteg'  #skip integrity check
+
+# FILE CLEANING
+alias pacclean='sudo paccache -ruk0 && sudo paccache -rk 0 && sudo pacman -Scc'
+
+# remove lock files for Arch Linux
+alias rmlogoutlock="sudo rm /tmp/arcologout.lock"
+alias rmpacmanlock="sudo rm /var/lib/pacman/db.lck"
+alias fixpacman="sudo rm /var/lib/pacman/db.lck"
+alias unlock="sudo rm /var/lib/pacman/db.lck"
+
+# Shutdown and Reboot
+alias shutdown='sudo shutdown -h now'
+alias reboot='sudo reboot'
+
+# shutdown now
+alias ssn="sudo shutdown now"
+alias sr="sudo reboot"
+
+## download mirrorlist
+alias mirrorf="sudo reflector -c AU -c NZ -c SG -f 105 -l 105 -n 40 --verbose --sort rate --save /etc/pacman.d/mirrorlist"
+alias mirrora="sudo reflector -c AU -c NZ --download-timeout 25  -a 48 -l 20 -f 20 --threads 5 --sort rate  --save /etc/pacman.d/mirrorlist"
+
+# nano for important configration files
+# know what you do in these files
+alias mirrorlist="cat /etc/pacman.d/mirrorlist"
+alias narcomirrorlist='sudo nano /etc/pacman.d/arcolinux-mirrorlist'
+alias nconfgrub="sudo nano /boot/grub/grub.cfg"
+alias nfstab="sudo nano /etc/fstab"
+alias ngrub="sudo nano /etc/default/grub"
+alias npacman="sudo nano /etc/pacman.conf"
+alias nsamba="sudo nano /etc/samba/smb.conf"
+
+alias nb="${=EDITOR} $HOME/.bashrc"
+alias nz="${=EDITOR} ${ZDOTDIR:-$HOME}/.zshrc"
+alias sz="source ${=EDITOR} ${ZDOTDIR:-$HOME}/.zshrc"
+alias zsn="${=EDITOR} ${ZDOTDIR:-$HOME}/.zshrc" # Quick access to the .zshrc file
+alias zsa="${=EDITOR} ${ZDOTDIR:-$HOME}/.zsh-aliases" # Quick access to the .zshrc file
+
+# grub update
+alias update-grub="sudo grub-mkconfig -o /boot/grub/grub.cfg"
+
+# youtube download
+alias yta-aac='yt-dlp --extract-audio --audio-format aac '
+alias yta-best='yt-dlp --extract-audio --audio-format best '
+alias yta-flac='yt-dlp --extract-audio --audio-format flac '
+alias yta-mp3='yt-dlp --extract-audio --audio-format mp3 '
+# alias ytv-best='yt-dlp -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/bestvideo+bestaudio' --merge-output-format mkv '
+# alias ytv-best-1='yt-dlp  --merge-output-format mkv '
+# alias ytv-small 'yt-dlp -f 'best -S +size,+br,+res,+fps' --merge-output-format mkv '
+
+alias ytv-best="yt-dlp -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/bestvideo+bestaudio' --merge-output-format mkv "
+alias ytv-small='yt-dlp -f "bv*[height<=480]+ba/b[height<=480] / wv*+ba/w"  --merge-output-format mkv '
+
+#arcolinux applications
+alias att="archlinux-tweak-tool"
+alias agm="arcolinux-get-mirrors"
+alias amr="arcolinux-mirrorlist-rank-info"
+alias aom="arcolinux-osbeck-as-mirror"
+alias ars="arcolinux-reflector-simple"
+
+# # ex = EXtractor for all kinds of archives
+# # usage: ex <file>
+ex ()
+{
+  if [ -f $1 ] ; then
+    case $1 in
+      *.tar.bz2)   tar xjf $1   ;;
+      *.tar.gz)    tar xzf $1   ;;
+      *.bz2)       bunzip2 $1   ;;
+      *.rar)       unrar x $1   ;;
+      *.gz)        gunzip $1    ;;
+      *.tar)       tar xf $1    ;;
+      *.tbz2)      tar xjf $1   ;;
+      *.tgz)       tar xzf $1   ;;
+      *.zip)       unzip $1     ;;
+      *.Z)         uncompress $1;;
+      *.7z)        7z x $1      ;;
+      *.deb)       ar x $1      ;;
+      *.tar.xz)    tar xf $1    ;;
+      *.tar.zst)   tar $1       ;;
+      *)           echo "'$1' cannot be extracted via ex()" ;;
+    esac
+  else
+    echo "'$1' is not a valid file"
+  fi
+}
+
+# switch between bash and zsh
+alias tobash="sudo chsh $USER -s /usr/bin/bash && echo 'Now log out.'"
+alias tozsh="sudo chsh $USER -s /usr/bin/zsh && echo 'Now log out.'"
